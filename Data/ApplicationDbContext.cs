@@ -8,7 +8,6 @@ namespace OnboardingApp.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
-    }
 
         public DbSet<Module> Modules { get; set; }
         public DbSet<ModuleSection> ModuleSections { get; set; }
@@ -16,4 +15,5 @@ namespace OnboardingApp.Data
         public DbSet<UserModuleProgress> UserModuleProgresses { get; set; }
         public DbSet<UserChecklistItemStatus> UserChecklistItemStatus { get; set; }
         public DbSet<UserNote> UserNotes { get; set; }
+    }
 }
