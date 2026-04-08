@@ -1,0 +1,70 @@
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+
+@code {
+    private ClaimsPrincipal? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        user = authState.User;
+    }
+}
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <!-- Title and progress bar -->
+        <h2 class="sidebar-title">Introduktion</h2>
+        <p class="sidebar-subtitle">Övergripande Framsteg</p>
+        <div class="progress-track">
+            <div class="progress-bar"></div>
+        </div>
+
+        <p class="progress-text">0 av 3 moduler slutförda</p>
+    </div>
+
+    <hr class="sidebar-divider" />
+
+    <!-- Searchbar -->
+    <div class="sidebar-search">
+        <div class="search-box">
+            <input type="text" placeholder="Sök innehåll..." />
+        </div>
+    </div>
+
+    <!-- Checklist section -->
+    <nav class="sidebar-nav">
+        <a href="#" class="nav-link active">Översikt</a>
+        <a href="#" class="nav-link">
+            <div class="nav-link-text">
+                <span>Checklista</span>
+                <span class="nav-link-subtext">0/29</span>
+            </div>
+        </a>
+    </nav>
+
+    <!-- Link to modules -->
+    <div class="sidebar-modules">
+        <p class="section-title">Moduler</p>
+        <a href="#" class="module-link">Badvdelningen</a>
+        <a href="#" class="module-link">Receptionen</a>
+        <a href="#" class="module-link">Spa-avdelningen</a>
+    </div>
+
+    <!-- Link to admin dashboard if role = admin -->
+    @if (user?.IsInRole("Admin") == true)
+    {
+        <p class="section-title">Admin</p>
+        <a href="/admin" class="nav-link">Adminpanel</a>
+    }
+
+    <!-- Profile section -->
+    <div class="sidebar-user">
+        <div class="user-avatar">JG</div>
+        <div class="user-info">
+            <p class="user-name">Julia Gustafsson</p>
+            <p class="user-action">Visa alternativ</p>
+        </div>
+    </div>
+</div>
