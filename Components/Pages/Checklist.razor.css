@@ -1,47 +1,102 @@
 .checklist-container {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: 1em;
     margin-top: 1.5em;
 }
 
-.filter-buttons {
-    display: flex;
-    gap: 0.75em;
-    margin: 1.5em 0;
-    flex-wrap: wrap;
-}
-
-.filter-button {
-    padding: 0.65em 1.2em;
-    border: 1px solid #d6d6d6;
-    border-radius: 999px;
-    background-color: white;
-    cursor: pointer;
-    font-size: 0.95em;
-}
-
-.filter-button.active {
-    font-weight: 600;
-}
 
 .checklist-card {
-    border: 1px solid #e2e2e2;
+    background: #ffffff;
+    border: 1px solid #e7e7e7;
     border-radius: 16px;
-    padding: 1em 1.25em;
-    background-color: white;
+    padding: 1.25em;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
-.checklist-card-content h4 {
-    margin: 0 0 0.5em 0;
+.checklist-card h4 {
+    margin: 0 0 0.75em 0;
+    font-size: 1.05em;
+    color: #1f2937;
 }
 
-.checklist-card-content p {
-    margin: 0 0 0.5em 0;
-    color: #555;
+.checklist-card p {
+    margin: 0.75em 0;
+    color: #4b5563;
+    line-height: 1.5;
 }
 
 .category {
-    font-size: 0.85em;
-    color: #888;
+    display: inline-block;
+    margin-top: 0.35em;
+    padding: 0.2em 0.55em;
+    background: #f3f4f6;
+    border-radius: 999px;
+    font-size: 0.8em;
+    color: #374151;
+}
+
+.status-text {
+    display: block;
+    margin-top: 0.9em;
+    font-size: 0.9em;
+    color: #6b7280;
+}
+
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65em;
+    margin: 1.25em 0 1.5em 0;
+}
+
+.filter-button {
+    border: none;
+    background: #f3f4f6;
+    color: #374151;
+    padding: 0.6em 1em;
+    border-radius: 999px;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.filter-button:hover {
+    background: #e5e7eb;
+    transform: translateY(-1px);
+}
+
+.filter-button.active {
+    background: #111827;
+    color: white;
+}
+
+.status-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin: 0.75em 0 0.25em 0;
+}
+
+.status-btn {
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #374151;
+    padding: 0.45em 0.85em;
+    border-radius: 10px;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.status-btn:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.status-btn.active {
+    border-color: #111827;
+    background: #111827;
+    color: white;
 }

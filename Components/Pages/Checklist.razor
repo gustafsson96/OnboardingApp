@@ -1,10 +1,15 @@
 @page "/checklist"
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
 @using OnboardingApp.Data
 @using OnboardingApp.Models
 @attribute [Authorize]
+
 @inject ApplicationDbContext Db
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <h1>Checklista</h1>
 <p>Här ser du alla moment i din inskolning.</p>
@@ -42,6 +47,23 @@ else
                 <div class="checklist-card">
                     <h4>@item.Title</h4>
 
+                    <div class="status-buttons">
+                        <button class="status-btn @(GetStatus(item.ChecklistItemId) == ChecklistStatus.NotStarted ? "active" : "")"
+                                @onclick='() => SetStatus(item.ChecklistItemId, ChecklistStatus.NotStarted)'>
+                            Inte påbörjad
+                        </button>
+
+                        <button class="status-btn @(GetStatus(item.ChecklistItemId) == ChecklistStatus.InProgress ? "active" : "")"
+                                @onclick='() => SetStatus(item.ChecklistItemId, ChecklistStatus.InProgress)'>
+                            Pågår
+                        </button>
+
+                        <button class="status-btn @(GetStatus(item.ChecklistItemId) == ChecklistStatus.Completed ? "active" : "")"
+                                @onclick='() => SetStatus(item.ChecklistItemId, ChecklistStatus.Completed)'>
+                            Klar
+                        </button>
+                    </div>
+
                     @if (!string.IsNullOrWhiteSpace(item.Description))
                     {
                         <p>@item.Description</p>
@@ -51,6 +73,10 @@ else
                     {
                         <small class="category">@item.Category</small>
                     }
+
+                    <small class="status-text">
+                        Status: @GetStatusLabel(item.ChecklistItemId)
+                    </small>
                 </div>
             }
         </div>
@@ -59,8 +85,11 @@ else
 
 @code {
     private List<ChecklistItem> checklistItems = new();
+    private List<UserChecklistItemStatus> userStatuses = new();
+
     private bool isLoading = true;
     private string selectedCategory = "Alla";
+    private string currentUserId = string.Empty;
 
     private List<string> categories => checklistItems
         .Where(i => !string.IsNullOrWhiteSpace(i.Category))
@@ -78,8 +107,23 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = await UserManager.GetUserAsync(authState.User);
+
+        if (user is null)
+        {
+            isLoading = false;
+            return;
+        }
+
+        currentUserId = user.Id;
+
         checklistItems = await Db.ChecklistItems
             .OrderBy(i => i.OrderIndex)
+            .ToListAsync();
+
+        userStatuses = await Db.Set<UserChecklistItemStatus>()
+            .Where(s => s.UserId == currentUserId)
             .ToListAsync();
 
         isLoading = false;
@@ -88,5 +132,47 @@ else
     private void SetCategory(string category)
     {
         selectedCategory = category;
+    }
+
+    private ChecklistStatus GetStatus(int checklistItemId)
+    {
+        var status = userStatuses.FirstOrDefault(s => s.ChecklistItemId == checklistItemId);
+        return status?.Status ?? ChecklistStatus.NotStarted;
+    }
+
+    private string GetStatusLabel(int checklistItemId)
+    {
+        return GetStatus(checklistItemId) switch
+        {
+            ChecklistStatus.NotStarted => "Inte påbörjad",
+            ChecklistStatus.InProgress => "Pågår",
+            ChecklistStatus.Completed => "Klar",
+            _ => "Inte påbörjad"
+        };
+    }
+
+    private async Task SetStatus(int checklistItemId, ChecklistStatus newStatus)
+    {
+        var existingStatus = userStatuses
+            .FirstOrDefault(s => s.ChecklistItemId == checklistItemId);
+
+        if (existingStatus is null)
+        {
+            existingStatus = new UserChecklistItemStatus
+            {
+                UserId = currentUserId,
+                ChecklistItemId = checklistItemId,
+                Status = newStatus
+            };
+
+            Db.Set<UserChecklistItemStatus>().Add(existingStatus);
+            userStatuses.Add(existingStatus);
+        }
+        else
+        {
+            existingStatus.Status = newStatus;
+        }
+
+        await Db.SaveChangesAsync();
     }
 }
