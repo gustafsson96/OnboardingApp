@@ -9,7 +9,7 @@ namespace OnboardingApp.Models
         public string? Category { get; set; }
         public int OrderIndex { get; set; }
 
-        public ICollection<UserChecklistItemStatus> UserChecklistItemStatus { get; set; } =
+        public ICollection<UserChecklistItemStatus> UserChecklistItemStatuses { get; set; } =
             new List<UserChecklistItemStatus>();
         public ICollection<UserNote> Notes { get; set; } = new List<UserNote>();
     }
