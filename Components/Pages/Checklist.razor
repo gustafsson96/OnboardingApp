@@ -13,39 +13,80 @@
 {
     <p>Laddar...</p>
 }
-else if (checklistItems.Count == 0)
-{
-    <p>Inga checklistpunkter hittades.</p>
-}
 else
 {
-    <div class="checklist-container">
-        @foreach (ChecklistItem item in checklistItems.OrderBy(i => i.OrderIndex))
+    <div class="filter-buttons">
+        <button class="filter-button @(selectedCategory == "Alla" ? "active" : "")"
+                @onclick='() => SetCategory("Alla")'>
+            Alla
+        </button>
+
+        @foreach (string category in categories)
         {
-            <div class="checklist-card">
-                <h4>@item.Title</h4>
-
-                @if (!string.IsNullOrWhiteSpace(item.Description))
-                {
-                    <p>@item.Description</p>
-                }
-
-                @if (!string.IsNullOrWhiteSpace(item.Category))
-                {
-                    <small class="category">Kategori: @item.Category</small>
-                }
-            </div>
+            <button class="filter-button @(selectedCategory == category ? "active" : "")"
+                    @onclick='() => SetCategory(category)'>
+                @category
+            </button>
         }
     </div>
+
+    @if (filteredChecklistItems.Count == 0)
+    {
+        <p>Inga checklistpunkter hittades.</p>
+    }
+    else
+    {
+        <div class="checklist-container">
+            @foreach (ChecklistItem item in filteredChecklistItems.OrderBy(i => i.OrderIndex))
+            {
+                <div class="checklist-card">
+                    <h4>@item.Title</h4>
+
+                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                    {
+                        <p>@item.Description</p>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(item.Category))
+                    {
+                        <small class="category">@item.Category</small>
+                    }
+                </div>
+            }
+        </div>
+    }
 }
 
 @code {
     private List<ChecklistItem> checklistItems = new();
     private bool isLoading = true;
+    private string selectedCategory = "Alla";
+
+    private List<string> categories => checklistItems
+        .Where(i => !string.IsNullOrWhiteSpace(i.Category))
+        .Select(i => i.Category!)
+        .Distinct()
+        .OrderBy(c => c)
+        .ToList();
+
+    private List<ChecklistItem> filteredChecklistItems =>
+        selectedCategory == "Alla"
+            ? checklistItems
+            : checklistItems
+                .Where(i => i.Category == selectedCategory)
+                .ToList();
 
     protected override async Task OnInitializedAsync()
     {
-        checklistItems = await Db.ChecklistItems.ToListAsync();
+        checklistItems = await Db.ChecklistItems
+            .OrderBy(i => i.OrderIndex)
+            .ToListAsync();
+
         isLoading = false;
+    }
+
+    private void SetCategory(string category)
+    {
+        selectedCategory = category;
     }
 }
