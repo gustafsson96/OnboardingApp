@@ -1,0 +1,26 @@
+.checklist-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.checklist-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    background-color: #fff;
+}
+
+.checklist-card h4 {
+    margin: 0 0 8px 0;
+}
+
+.checklist-card p {
+    margin: 0 0 8px 0;
+    color: #555;
+}
+
+.category {
+    font-size: 12px;
+    color: #888;
+}

@@ -41,6 +41,7 @@ using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
     string[] roles = { "Admin", "Employee" };
 
@@ -112,6 +113,35 @@ using (var scope = app.Services.CreateScope())
     if (employeeUser != null && !await userManager.IsInRoleAsync(employeeUser, "Employee"))
     {
         await userManager.AddToRoleAsync(employeeUser, "Employee");
+    }
+
+    if (!context.ChecklistItems.Any())
+    {
+        context.ChecklistItems.AddRange(
+            new ChecklistItem
+            {
+                Title = "Lär dig rutiner för vattenprovtagning",
+                Description = "Gå igenom hur kemiska tester utförs",
+                Category = "Bad",
+                OrderIndex = 1,
+            },
+            new ChecklistItem
+            {
+                Title = "Bekanta dig med receptionen",
+                Description = "Kundbemötande och rutiner",
+                Category = "Reception",
+                OrderIndex = 2,
+            },
+            new ChecklistItem
+            {
+                Title = "Spa-rutiner",
+                Description = "Hygien och säkerhet",
+                Category = "Spa",
+                OrderIndex = 3,
+            }
+        );
+
+        context.SaveChanges();
     }
 }
 

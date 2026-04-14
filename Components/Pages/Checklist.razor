@@ -1,0 +1,51 @@
+@page "/checklist"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@using OnboardingApp.Data
+@using OnboardingApp.Models
+@attribute [Authorize]
+@inject ApplicationDbContext Db
+
+<h1>Checklista</h1>
+<p>Här ser du alla moment i din inskolning.</p>
+
+@if (isLoading)
+{
+    <p>Laddar...</p>
+}
+else if (checklistItems.Count == 0)
+{
+    <p>Inga checklistpunkter hittades.</p>
+}
+else
+{
+    <div class="checklist-container">
+        @foreach (ChecklistItem item in checklistItems.OrderBy(i => i.OrderIndex))
+        {
+            <div class="checklist-card">
+                <h4>@item.Title</h4>
+
+                @if (!string.IsNullOrWhiteSpace(item.Description))
+                {
+                    <p>@item.Description</p>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(item.Category))
+                {
+                    <small class="category">Kategori: @item.Category</small>
+                }
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<ChecklistItem> checklistItems = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        checklistItems = await Db.ChecklistItems.ToListAsync();
+        isLoading = false;
+    }
+}
