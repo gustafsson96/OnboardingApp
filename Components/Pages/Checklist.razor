@@ -20,6 +20,7 @@
 }
 else
 {
+    <ProgressBar Total="@TotalChecklistItems" Completed="@CompletedChecklistItems" />
     <div class="filter-buttons">
         <button class="filter-button @(selectedCategory == "Alla" ? "active" : "")"
                 @onclick='() => SetCategory("Alla")'>
@@ -90,6 +91,11 @@ else
     private bool isLoading = true;
     private string selectedCategory = "Alla";
     private string currentUserId = string.Empty;
+
+    private int TotalChecklistItems => checklistItems.Count;
+
+    private int CompletedChecklistItems => userStatuses
+        .Count(s => s.Status == ChecklistStatus.Completed);
 
     private List<string> categories => checklistItems
         .Where(i => !string.IsNullOrWhiteSpace(i.Category))

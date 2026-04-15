@@ -1,0 +1,17 @@
+<div class="progress-card">
+    <h2>Totalt Framsteg</h2>
+    <p class="progress-text">@Completed av @Total punkter slutförda</p>
+
+    <div class="progress-container">
+        <div class="progress-fill" style="width: @(Percentage)%"></div>
+    </div>
+
+    <p class="progress-percent">@Percentage% klart</p>
+</div>
+
+@code {
+    [Parameter] public int Total { get; set; }
+    [Parameter] public int Completed { get; set; }
+
+    private int Percentage => Total == 0 ? 0 : (Completed * 100) / Total;
+}
