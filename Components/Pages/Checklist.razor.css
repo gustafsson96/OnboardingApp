@@ -108,3 +108,14 @@
     gap: 1.5em;
     margin: 2em 0;
 }
+
+/* Styling for notes */
+.note-toggle-btn {
+    margin-top: 0.75em;
+}
+
+.note-textarea {
+    width: 100%;
+    min-height: 100px;
+    margin-top: 0.5em;
+}

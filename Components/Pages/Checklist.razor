@@ -91,13 +91,22 @@ else
                         Status: @GetStatusLabel(item.ChecklistItemId)
                     </small>
                     
-                    <label for="note-@item.ChecklistItemId">Egna anteckningar</label>
-                    <textarea id="note-@item.ChecklistItemId"
-                              class="note-textarea"
-                              value="@GetNote(item.ChecklistItemId)"
-                              @onchange="async (e) => await SaveNote(item.ChecklistItemId, e.Value?.ToString() ?? string.Empty)">
-                    </textarea>
-                </div>
+                    <button type="button"
+                            class="note-toggle-btn"
+                            @onclick='() => ToggleNote(item.ChecklistItemId)'>
+                        Anteckning
+                    </button>
+
+                    @if (openNoteForChecklistItemId == item.ChecklistItemId)
+                    {
+                        <label for="note-@item.ChecklistItemId">Egna anteckningar</label>
+                        <textarea id="note-@item.ChecklistItemId"
+                                class="note-textarea"
+                                value="@GetNote(item.ChecklistItemId)"
+                                @onchange="async (e) => await SaveNote(item.ChecklistItemId, e.Value?.ToString() ?? string.Empty)">
+                        </textarea>
+                    }
+            </div>
             }
         </div>
     }
@@ -116,6 +125,20 @@ else
 
     private int CompletedChecklistItems => userStatuses
         .Count(s => s.Status == ChecklistStatus.Completed);
+
+    private int? openNoteForChecklistItemId = null;
+
+    private void ToggleNote(int checklistItemId)
+    {
+        if (openNoteForChecklistItemId == checklistItemId)
+        {
+            openNoteForChecklistItemId = null;
+        }
+        else
+        {
+            openNoteForChecklistItemId = checklistItemId;
+        }
+    }
 
     private List<string> categories => checklistItems
         .Where(i => !string.IsNullOrWhiteSpace(i.Category))
