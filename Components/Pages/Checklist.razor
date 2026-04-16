@@ -58,7 +58,24 @@ else
             @foreach (ChecklistItem item in filteredChecklistItems.OrderBy(i => i.OrderIndex))
             {
                 <div class="checklist-card">
-                    <h4>@item.Title</h4>
+
+                    <div class="checklist-card-header">
+                        <div class="checklist-card-title-area">
+                            <h4>@item.Title</h4>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Category))
+                            {
+                                <small class="category">@item.Category</small>
+                            }
+                        </div>
+
+                        <button type="button"
+                                class="note-icon-btn @(IsNoteOpen(item.ChecklistItemId) ? "active" : "")"
+                                @onclick='() => ToggleNote(item.ChecklistItemId)'
+                                aria-label="Öppna anteckningar">
+                            📄
+                        </button>
+                    </div>
 
                     <div class="status-buttons">
                         <button class="status-btn @(GetStatus(item.ChecklistItemId) == ChecklistStatus.NotStarted ? "active" : "")"
@@ -82,31 +99,32 @@ else
                         <p>@item.Description</p>
                     }
 
-                    @if (!string.IsNullOrWhiteSpace(item.Category))
-                    {
-                        <small class="category">@item.Category</small>
-                    }
-
                     <small class="status-text">
                         Status: @GetStatusLabel(item.ChecklistItemId)
                     </small>
                     
-                    <button type="button"
-                            class="note-toggle-btn"
-                            @onclick='() => ToggleNote(item.ChecklistItemId)'>
-                        Anteckning
-                    </button>
+                @if (IsNoteOpen(item.ChecklistItemId))
+                {
+                    <div class="note-panel">
+                        <div class="note-divider"></div>
 
-                    @if (openNoteForChecklistItemId == item.ChecklistItemId)
-                    {
-                        <label for="note-@item.ChecklistItemId">Egna anteckningar</label>
+                        <div class="note-heading">
+                            <span class="note-heading-icon">📄</span>
+                            <span>Personliga Anteckningar</span>
+                        </div>
+
                         <textarea id="note-@item.ChecklistItemId"
                                 class="note-textarea"
-                                value="@GetNote(item.ChecklistItemId)"
-                                @onchange="async (e) => await SaveNote(item.ChecklistItemId, e.Value?.ToString() ?? string.Empty)">
+                                placeholder="Skriv dina anteckningar här..."
+                                @bind="BindNote[item.ChecklistItemId]"
+                                @bind:event="oninput"
+                                @onblur="async () => await SaveNote(item.ChecklistItemId)"
                         </textarea>
+
+                        <p class="note-helper-text">Dina anteckningar sparas automatiskt</p>
+                    </div>
                     }
-            </div>
+                </div>
             }
         </div>
     }
@@ -116,6 +134,7 @@ else
     private List<ChecklistItem> checklistItems = new();
     private List<UserChecklistItemStatus> userStatuses = new();
     private List<UserNote> userNotes = new();
+    private Dictionary<int, string> BindNote = new();
 
     private bool isLoading = true;
     private string selectedCategory = "Alla";
@@ -138,6 +157,11 @@ else
         {
             openNoteForChecklistItemId = checklistItemId;
         }
+    }
+
+    private bool IsNoteOpen(int checklistItemId)
+    {
+        return openNoteForChecklistItemId == checklistItemId;
     }
 
     private List<string> categories => checklistItems
@@ -178,6 +202,22 @@ else
         userNotes = await Db.Set<UserNote>()
             .Where(n => n.UserId == currentUserId && n.ChecklistItemId != null)
             .ToListAsync();
+
+        foreach (var note in userNotes)
+        {
+            if (note.ChecklistItemId.HasValue)
+            {
+                BindNote[note.ChecklistItemId.Value] = note.Content;
+            }
+        }
+
+        foreach (var item in checklistItems)
+        {
+            if (!BindNote.ContainsKey(item.ChecklistItemId))
+            {
+                BindNote[item.ChecklistItemId] = string.Empty;
+            }
+        }
 
         isLoading = false;
     }
@@ -251,8 +291,12 @@ else
             ?.Content ?? string.Empty;
     }
 
-    private async Task SaveNote(int checklistItemId, string content)
+    private async Task SaveNote(int checklistItemId)
     {
+        var content = BindNote.ContainsKey(checklistItemId)
+            ? BindNote[checklistItemId]
+            : "";
+
         var existingNote = userNotes
             .FirstOrDefault(n => n.ChecklistItemId == checklistItemId);
 
