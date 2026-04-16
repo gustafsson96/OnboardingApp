@@ -73,7 +73,7 @@ else
                                 class="note-icon-btn @(IsNoteOpen(item.ChecklistItemId) ? "active" : "")"
                                 @onclick='() => ToggleNote(item.ChecklistItemId)'
                                 aria-label="Öppna anteckningar">
-                            📄
+                            <i class="fa-regular fa-pen-to-square"></i>
                         </button>
                     </div>
 
@@ -109,8 +109,7 @@ else
                         <div class="note-divider"></div>
 
                         <div class="note-heading">
-                            <span class="note-heading-icon">📄</span>
-                            <span>Personliga Anteckningar</span>
+                            <span>Personliga anteckningar:</span>
                         </div>
 
                         <textarea id="note-@item.ChecklistItemId"

@@ -13,10 +13,25 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
-.checklist-card h4 {
-    margin: 0 0 0.75em 0;
-    font-size: 1.05em;
-    color: #1f2937;
+.checklist-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1em;
+    margin-bottom: 0.75em;
+}
+
+.checklist-card-title-area {
+    flex: 1;
+    min-width: 0;
+}
+
+.checklist-card-title-area h4 {
+    margin: 0 0 0.35em 0;
+}
+
+.checklist-card-title-area .category {
+    display: inline-block;
 }
 
 .checklist-card p {
@@ -110,8 +125,34 @@
 }
 
 /* Styling for notes */
-.note-toggle-btn {
-    margin-top: 0.75em;
+.note-icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    padding: 0;
+}
+
+.note-icon-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.note-icon-btn.active {
+    background: #111827;
+    border-color: #111827;
+    color: white;
+}
+
+.note-icon-btn i {
+    font-size: 16px;
+    pointer-events: none;
 }
 
 .note-textarea {
