@@ -90,6 +90,13 @@ else
                     <small class="status-text">
                         Status: @GetStatusLabel(item.ChecklistItemId)
                     </small>
+                    
+                    <label for="note-@item.ChecklistItemId">Egna anteckningar</label>
+                    <textarea id="note-@item.ChecklistItemId"
+                              class="note-textarea"
+                              value="@GetNote(item.ChecklistItemId)"
+                              @onchange="async (e) => await SaveNote(item.ChecklistItemId, e.Value?.ToString() ?? string.Empty)">
+                    </textarea>
                 </div>
             }
         </div>
@@ -99,6 +106,7 @@ else
 @code {
     private List<ChecklistItem> checklistItems = new();
     private List<UserChecklistItemStatus> userStatuses = new();
+    private List<UserNote> userNotes = new();
 
     private bool isLoading = true;
     private string selectedCategory = "Alla";
@@ -142,6 +150,10 @@ else
 
         userStatuses = await Db.Set<UserChecklistItemStatus>()
             .Where(s => s.UserId == currentUserId)
+            .ToListAsync();
+
+        userNotes = await Db.Set<UserNote>()
+            .Where(n => n.UserId == currentUserId && n.ChecklistItemId != null)
             .ToListAsync();
 
         isLoading = false;
@@ -204,6 +216,40 @@ else
         else
         {
             existingStatus.Status = newStatus;
+        }
+
+        await Db.SaveChangesAsync();
+    }
+
+    private string GetNote(int checklistItemId)
+    {
+        return userNotes
+            .FirstOrDefault(n => n.ChecklistItemId == checklistItemId)
+            ?.Content ?? string.Empty;
+    }
+
+    private async Task SaveNote(int checklistItemId, string content)
+    {
+        var existingNote = userNotes
+            .FirstOrDefault(n => n.ChecklistItemId == checklistItemId);
+
+        if (existingNote is null)
+        {
+            existingNote = new UserNote
+            {
+                UserId = currentUserId,
+                ChecklistItemId = checklistItemId,
+                Content = content,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            Db.Set<UserNote>().Add(existingNote);
+            userNotes.Add(existingNote);
+        }
+        else
+        {
+            existingNote.Content = content;
+            existingNote.UpdatedAt = DateTime.UtcNow;
         }
 
         await Db.SaveChangesAsync();
