@@ -81,11 +81,6 @@ else
 
                         <div class="checklist-card-title-area">
                             <h4>@item.Title</h4>
-
-                            @if (!string.IsNullOrWhiteSpace(item.Category))
-                            {
-                                <small class="category">@item.Category</small>
-                            }
                         </div>
 
                         <div class="checklist-card-actions">
@@ -118,9 +113,13 @@ else
                     {
                         <p>@item.Description</p>
                     }
-
+                    
                     @* Current status (controlled by user) *@
                     <small class="status-text">
+                    @if (!string.IsNullOrWhiteSpace(item.Category))
+                        {
+                        <small class="category">@item.Category</small>
+                        }
                         Status: @GetStatusLabel(item.ChecklistItemId)
                     </small>
 
