@@ -86,34 +86,14 @@
     color: white;
 }
 
-.status-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5em;
-    margin: 0.75em 0 0.25em 0;
+.checklist-card.completed h4 {
+    text-decoration: line-through;
+    opacity: 0.6;
 }
 
-.status-btn {
-    border: 1px solid #d1d5db;
-    background: white;
-    color: #374151;
-    padding: 0.45em 0.85em;
-    border-radius: 10px;
-    font-size: 0.9em;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.status-btn:hover {
-    background: #f9fafb;
-    border-color: #9ca3af;
-}
-
-.status-btn.active {
-    border-color: #111827;
-    background: #111827;
-    color: white;
+.checklist-checkbox {
+    margin-right: 0.75em;
+    margin-top: 0.2em;
 }
 
 /* Container for category progress cards */
@@ -122,6 +102,33 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5em;
     margin: 2em 0;
+}
+
+/* Action buttons for opening notes and marking checklist item as started */
+.checklist-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.start-btn {
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    font-size: 0.8em;
+    font-weight: 500;
+    padding: 0.4em 0.65em;
+    border-radius: 0.5em;
+    cursor: pointer;
+}
+
+.start-btn:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+.checklist-card.in-progress {
+    background-color: #faf8f0;
 }
 
 /* Styling for notes */

@@ -38,6 +38,7 @@ else
                     />
             }
     </div>
+    
     @* Filter buttons based on categories *@
     <div class="filter-buttons">
         <button class="filter-button @(selectedCategory == "Alla" ? "active" : "")"
@@ -67,43 +68,49 @@ else
             @* Loop through filtered checklist items and render one card per item *@
             @foreach (ChecklistItem item in filteredChecklistItems.OrderBy(i => i.OrderIndex))
             {
-                <div class="checklist-card">
+                <div class="checklist-card @(GetStatus(item.ChecklistItemId) == ChecklistStatus.Completed ? "completed" : "") @(GetStatus(item.ChecklistItemId) == ChecklistStatus.InProgress ? "in-progress" : "")">
 
                     @* Card header *@
                     <div class="checklist-card-header">
+
+                        <input type="checkbox"
+                            class="checklist-checkbox"
+                            checked="@(GetStatus(item.ChecklistItemId) == ChecklistStatus.Completed)"
+                            @onclick:stopPropagation
+                            @onchange="(e) => HandleCheckboxChanged(item.ChecklistItemId, e)" />
+
                         <div class="checklist-card-title-area">
                             <h4>@item.Title</h4>
+
                             @if (!string.IsNullOrWhiteSpace(item.Category))
                             {
                                 <small class="category">@item.Category</small>
                             }
                         </div>
 
-                        @* Toggle note panel for a checklist item *@
-                        <button type="button"
-                                class="note-icon-btn @(IsNoteOpen(item.ChecklistItemId) ? "active" : "")"
-                                @onclick='() => ToggleNote(item.ChecklistItemId)'
-                                aria-label="Öppna anteckningar">
-                            <i class="fa-regular fa-pen-to-square"></i>
-                        </button>
-                    </div>
+                        <div class="checklist-card-actions">
+                            @* Show start toggle button if item is not completed *@
+                            @if (GetStatus(item.ChecklistItemId) != ChecklistStatus.Completed)
+                            {
+                                <button type="button"
+                                        class="start-btn"
+                                        @onclick='() => ToggleStarted(item.ChecklistItemId)'
+                                        aria-label="Toggle start status">
 
-                    @* Status buttons to update progress *@
-                    <div class="status-buttons">
-                        <button class="status-btn @(GetStatus(item.ChecklistItemId) == ChecklistStatus.NotStarted ? "active" : "")"
-                                @onclick='() => SetStatus(item.ChecklistItemId, ChecklistStatus.NotStarted)'>
-                            Inte påbörjad
-                        </button>
-
-                        <button class="status-btn @(GetStatus(item.ChecklistItemId) == ChecklistStatus.InProgress ? "active" : "")"
-                                @onclick='() => SetStatus(item.ChecklistItemId, ChecklistStatus.InProgress)'>
-                            Pågår
-                        </button>
-
-                        <button class="status-btn @(GetStatus(item.ChecklistItemId) == ChecklistStatus.Completed ? "active" : "")"
-                                @onclick='() => SetStatus(item.ChecklistItemId, ChecklistStatus.Completed)'>
-                            Klar
-                        </button>
+                                    @(GetStatus(item.ChecklistItemId) == ChecklistStatus.InProgress
+                                        ? "Markera som ej påbörjad"
+                                        : "Starta")
+                                </button>
+                            }
+                            @* Button with icon to toggle note panel for a checklist item *@
+                            <button type="button"
+                                    class="note-icon-btn @(IsNoteOpen(item.ChecklistItemId) ? "active" : "")"
+                                    @onclick:stopPropagation
+                                    @onclick='() => ToggleNote(item.ChecklistItemId)'
+                                    aria-label="Öppna anteckningar">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </button>
+                        </div>
                     </div>
 
                     @* Checklist item description *@
@@ -325,6 +332,36 @@ else
         }
 
         await Db.SaveChangesAsync();
+    }
+
+    // Toggle started status
+    private async Task ToggleStarted(int checklistItemId)
+    {
+        var currentStatus = GetStatus(checklistItemId);
+
+        if (currentStatus == ChecklistStatus.NotStarted)
+        {
+            await SetStatus(checklistItemId, ChecklistStatus.InProgress);
+        }
+        else if (currentStatus == ChecklistStatus.InProgress)
+        {
+            await SetStatus(checklistItemId, ChecklistStatus.NotStarted);
+        }
+    }
+
+    // Set status for when checkbox is clicked 
+    private async Task HandleCheckboxChanged(int checklistItemId, ChangeEventArgs e)
+    {
+        bool isChecked = (bool)e.Value!;
+
+        if (isChecked)
+        {
+            await SetStatus(checklistItemId, ChecklistStatus.Completed);
+        }
+        else
+        {
+            await SetStatus(checklistItemId, ChecklistStatus.NotStarted);
+        }
     }
 
     // Returns the saved note text for a checklist item
