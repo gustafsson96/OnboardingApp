@@ -3,6 +3,7 @@
 
     <div>
         <div class="category-progress-header">
+            <span class="category-dot" style="background-color:@Color"></span>
             <h3>@Category</h3>
         </div>
 
@@ -38,6 +39,8 @@
     [Parameter] public bool IsActive { get; set; }
     // Event triggered when the card is clicked
     [Parameter] public EventCallback<string> OnCategoryClick { get; set; }
+    // Color for category dot
+    [Parameter] public string Color { get; set; } = "#9ca3af";
 
     // Calculates percentage for completed items (avoid division by 0)
     private int Percentage => Total == 0 ? 0 : (Completed * 100) / Total;

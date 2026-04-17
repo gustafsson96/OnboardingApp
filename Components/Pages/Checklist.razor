@@ -35,6 +35,7 @@ else
                     Completed="@GetCompletedForCategory(category)"
                     IsActive="@(selectedCategory == category)"
                     OnCategoryClick="SetCategory"
+                    Color="@GetCategoryColor(category)"
                     />
             }
     </div>
@@ -118,7 +119,10 @@ else
                     <small class="status-text">
                     @if (!string.IsNullOrWhiteSpace(item.Category))
                         {
-                        <small class="category">@item.Category</small>
+                            <small class="category"
+                                style="background-color:@GetCategoryColor(item.Category); color:white;">
+                                @item.Category
+                            </small>
                         }
                         Status: @GetStatusLabel(item.ChecklistItemId)
                     </small>
@@ -401,5 +405,22 @@ else
         }
 
         await Db.SaveChangesAsync();
+    }
+
+    // Color mapping for categories
+    private Dictionary<string, string> categoryColors = new()
+    {
+        { "Bad", "#3b82f6" }, 
+        { "Reception", "#10b981" }, 
+        { "Spa", "#f59e0b" },
+    };
+
+    // Fallback color
+    private string GetCategoryColor(string? category)
+    {
+        if (category != null && categoryColors.ContainsKey(category))
+            return categoryColors[category];
+
+        return "#9ca3af";
     }
 }
