@@ -2,16 +2,21 @@
     <h2>Totalt Framsteg</h2>
     <p class="progress-text">@Completed av @Total punkter slutförda</p>
 
+    <!-- Progress bar container -->
     <div class="progress-container">
         <div class="progress-fill" style="width: @(Percentage)%"></div>
     </div>
-
+    <!-- Percentage display -->
     <p class="progress-percent">@Percentage% klart</p>
 </div>
 
 @code {
+    // Total number of checklist items
     [Parameter] public int Total { get; set; }
+
+    // Number of completed checklist items 
     [Parameter] public int Completed { get; set; }
 
+    // Calculate percentage for completed items (aviods division by 0)
     private int Percentage => Total == 0 ? 0 : (Completed * 100) / Total;
 }
