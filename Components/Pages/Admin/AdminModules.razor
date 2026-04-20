@@ -40,49 +40,76 @@
 }
 else
 {
-    <table>
-        <thead>
-            <tr>
-                <th>Titel</th>
-                <th>Beskrivning</th>
-                <th>Ordning</th>
-                <th>Åtgärder</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var module in modules)
+    @foreach (var module in modules)
+    {
+        var sectionForm = GetSectionForm(module.ModuleId);
+
+        <div style="border:1px solid #ccc; padding:1em; margin-bottom:1em;">
+            @if (editingModuleId == module.ModuleId)
             {
-                <tr>
-                    @if (editingModuleId == module.ModuleId)
-                    {
-                        <td>
-                            <input @bind="editModule.Title" />
-                        </td>
-                        <td>
-                            <textarea @bind="editModule.Description"></textarea>
-                        </td>
-                        <td>
-                            <input type="number" @bind="editModule.OrderIndex" />
-                        </td>
-                        <td>
-                            <button @onclick="SaveEdit">Spara</button>
-                            <button @onclick="CancelEdit">Avbryt</button>
-                        </td>
-                    }
-                    else
-                    {
-                        <td>@module.Title</td>
-                        <td>@module.Description</td>
-                        <td>@module.OrderIndex</td>
-                        <td>
-                            <button @onclick="() => StartEdit(module)">Redigera</button>
-                            <button @onclick="() => DeleteModule(module.ModuleId)">Ta bort</button>
-                        </td>
-                    }
-                </tr>
+                <div>
+                    <label>Titel</label><br />
+                    <input @bind="editModule.Title" />
+                </div>
+
+                <div>
+                    <label>Beskrivning</label><br />
+                    <textarea @bind="editModule.Description"></textarea>
+                </div>
+
+                <div style="margin-top:0.5em;">
+                    <button @onclick="SaveEdit">Spara</button>
+                    <button @onclick="CancelEdit">Avbryt</button>
+                </div>
             }
-        </tbody>
-    </table>
+            else
+            {
+                <h3>@module.Title</h3>
+                <p>@module.Description</p>
+                <p><strong>Ordning:</strong> @module.OrderIndex</p>
+
+                <button @onclick="() => StartEdit(module)">Redigera modul</button>
+                <button @onclick="() => DeleteModule(module.ModuleId)">Ta bort modul</button>
+            }
+
+            <hr />
+
+            <h4>Sektioner</h4>
+
+            @if (module.Sections == null || !module.Sections.Any())
+            {
+                <p>Inga sektioner ännu.</p>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var section in module.Sections.OrderBy(s => s.OrderIndex))
+                    {
+                        <li>
+                            <strong>@((MarkupString)section.Title):</strong>
+                           @((MarkupString)section.Content)
+                        </li>
+                    }
+                </ul>
+            }
+
+            <h4>Skapa ny sektion</h4>
+
+            <div>
+                <label>Titel</label><br />
+                <input @bind="sectionForm.Title" />
+            </div>
+
+            <div>
+                <label>Innehåll</label><br />
+                <textarea @bind="sectionForm.Content"></textarea>
+            </div>
+
+            <div style="margin-top:0.5em;">
+                <button @onclick="() => CreateSection(module.ModuleId)">Lägg till sektion</button>
+            </div>
+        </div>
+    }
 }
 
 @code {
@@ -91,6 +118,16 @@ else
     private int? editingModuleId;
     private Module editModule = new();
     private string? message;
+
+    // View model for a new section
+    private class NewSectionModel
+        {
+            public string Title { get; set; } = string.Empty;
+            public string Content { get; set; } = string.Empty;
+        }
+    
+    // Section form for each module
+    private Dictionary<int, NewSectionModel> newSections = new();
 
     // Fetch modules on page load
     protected override async Task OnInitializedAsync()
@@ -102,6 +139,7 @@ else
     private async Task LoadModules()
     {
         modules = await Db.Modules
+            .Include(m => m.Sections)
             .OrderBy(m => m.OrderIndex)
             .ToListAsync();
     }
@@ -185,10 +223,12 @@ else
         editModule = new Module();
     }
 
-    // Delete a module
+    // Delete a module and its sections
     private async Task DeleteModule(int moduleId)
     {
-        var module = await Db.Modules.FindAsync(moduleId);
+        var module = await Db.Modules
+            .Include(m => m.Sections)
+            .FirstOrDefaultAsync(m => m.ModuleId == moduleId);
 
         if (module is null)
         {
@@ -196,10 +236,60 @@ else
             return;
         }
 
+        if (module.Sections.Any())
+        {
+            Db.ModuleSections.RemoveRange(module.Sections);
+        }
+
         Db.Modules.Remove(module);
         await Db.SaveChangesAsync();
 
-        message = "Modulen togs bort.";
+        message = "Modulen och dess sektioner togs bort.";
         await LoadModules();
     }
+
+    // Get formdata for a module
+    private NewSectionModel GetSectionForm(int moduleId)
+        {
+            if (!newSections.ContainsKey(moduleId))
+            {
+                newSections[moduleId] = new NewSectionModel();
+            }
+
+            return newSections[moduleId];
+        }
+
+    // Create a new section for a module
+    private async Task CreateSection(int moduleId)
+        {
+            var form = GetSectionForm(moduleId);
+
+            if (string.IsNullOrWhiteSpace(form.Title) || string.IsNullOrWhiteSpace(form.Content))
+            {
+                message = "Sektionens titel och innehåll måste anges.";
+                return;
+            }
+
+            int maxOrderIndex = await Db.ModuleSections
+                .Where(s => s.ModuleId == moduleId)
+                .MaxAsync(s => (int?)s.OrderIndex) ?? 0;
+
+            var section = new ModuleSection
+            {
+                ModuleId = moduleId,
+                Title = form.Title,
+                Content = form.Content,
+                OrderIndex = maxOrderIndex + 1
+            };
+
+            Db.ModuleSections.Add(section);
+            await Db.SaveChangesAsync();
+
+            newSections[moduleId] = new NewSectionModel();
+            message = "Sektionen skapades.";
+
+            await LoadModules();
+        }
+
+
 }
