@@ -1,0 +1,134 @@
+.module-page {
+    max-width: 70em;
+    margin: 0 auto;
+    padding: 2em;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    font-size: 1em;
+    cursor: pointer;
+    margin-bottom: 1.5em;
+    padding: 0;
+}
+
+.module-header {
+    margin-bottom: 2em;
+}
+
+.module-header h1 {
+    font-size: 2em;
+    margin-bottom: 0.3em;
+}
+
+.module-header p {
+    font-size: 1em;
+    color: #555;
+    margin: 0;
+}
+
+.module-sections-overview {
+    margin-bottom: 2em;
+}
+
+.module-sections-overview h2 {
+    font-size: 1.1em;
+    margin-bottom: 0.4em;
+}
+
+.module-sections-overview p {
+    margin-bottom: 1em;
+    color: #666;
+}
+
+.section-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7em;
+}
+
+.section-tab {
+    padding: 0.7em 1.2em;
+    border: 0.08em solid #d0d0d0;
+    border-radius: 2em;
+    background-color: #f5f5f5;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.section-tab:hover {
+    background-color: #ececec;
+}
+
+.section-tab.active {
+    background-color: #dbeafe;
+    border-color: #93c5fd;
+    font-weight: 600;
+}
+
+.module-content {
+    background-color: #ffffff;
+    border: 0.08em solid #e2e2e2;
+    border-radius: 1em;
+    padding: 1.5em;
+    margin-bottom: 1.5em;
+    box-shadow: 0 0.2em 0.6em rgba(0, 0, 0, 0.04);
+}
+
+.module-content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    margin-bottom: 1.2em;
+    padding-bottom: 0.8em;
+    border-bottom: 0.08em solid #eeeeee;
+}
+
+.module-content-header h2 {
+    margin: 0;
+    font-size: 1.4em;
+}
+
+.module-content-header span {
+    font-size: 0.95em;
+    color: #666;
+    white-space: nowrap;
+}
+
+.module-content-body {
+    font-size: 1em;
+    line-height: 1.7;
+    color: #222;
+}
+
+.module-content-body p:first-child {
+    margin-top: 0;
+}
+
+.module-content-body p:last-child {
+    margin-bottom: 0;
+}
+
+.module-navigation {
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+}
+
+.module-navigation button {
+    padding: 0.8em 1.4em;
+    border: none;
+    border-radius: 0.7em;
+    background-color: #111827;
+    color: white;
+    font-size: 0.95em;
+    cursor: pointer;
+}
+
+.module-navigation button:disabled {
+    background-color: #cfcfcf;
+    cursor: not-allowed;
+}

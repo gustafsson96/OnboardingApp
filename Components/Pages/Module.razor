@@ -1,0 +1,152 @@
+@page "/module/{ModuleId:int}"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@using OnboardingApp.Data
+@using OnboardingApp.Models
+@using ModuleModel = OnboardingApp.Models.Module
+@attribute [Authorize]
+@inject ApplicationDbContext Db
+@inject NavigationManager Nav
+
+@if (isLoading)
+{
+    <p>Laddar modul...</p>
+}
+else if (module is null)
+{
+    <p>Modulen kunde inte hittas.</p>
+}
+else
+{
+    <div class="module-page">
+        <button class="back-button" @onclick="GoBack">
+            ← Tillbaka
+        </button>
+
+        <header class="module-header">
+            <h1>@module.Title</h1>
+            @if (!string.IsNullOrWhiteSpace(module.Description))
+            {
+                <p>@module.Description</p>
+            }
+        </header>
+
+        <section class="module-sections-overview">
+            <h2>Sektioner</h2>
+            <p>@(currentIndex + 1) av @sections.Count</p>
+
+            <div class="section-tabs">
+                @for (int i = 0; i < sections.Count; i++)
+                {
+                    var index = i;
+                    <button class="section-tab @(index == currentIndex ? "active" : "")"
+                            @onclick="() => SetSection(index)">
+                        @sections[index].Title
+                    </button>
+                }
+            </div>
+        </section>
+
+        @if (sections.Count > 0)
+        {
+            var currentSection = sections[currentIndex];
+
+            <section class="module-content">
+                <div class="module-content-header">
+                    <h2>@currentSection.Title</h2>
+                    <span>@(currentIndex + 1) / @sections.Count</span>
+                </div>
+
+                <div class="module-content-body">
+                    @((MarkupString)currentSection.Content)
+                </div>
+            </section>
+
+            <div class="module-navigation">
+                <button @onclick="PreviousSection" disabled="@(currentIndex == 0)">
+                    Föregående sektion
+                </button>
+
+                <button @onclick="NextSection" disabled="@(currentIndex == sections.Count - 1)">
+                    Nästa sektion
+                </button>
+            </div>
+        }
+        else
+        {
+            <p>Den här modulen har inga sektioner ännu.</p>
+        }
+    </div>
+}
+
+@code {
+    // Route parameter: id for the selected module
+    [Parameter]
+    public int ModuleId { get; set; }
+
+    // Current module loaded from database
+    private ModuleModel? module;
+
+    // List of sections belonging to the module
+    private List<ModuleSection> sections = new();
+
+    // Index of the currently active section
+    private int currentIndex = 0;
+
+    // Loading state while fetching data
+    private bool isLoading = true;
+
+    // Runs when the component is first initialized
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadModule();
+    }
+
+    // Fetch module and its sections from database
+    private async Task LoadModule()
+    {
+        module = await Db.Modules
+            .Include(m => m.Sections)
+            .FirstOrDefaultAsync(m => m.ModuleId == ModuleId);
+
+        if (module is not null)
+        {
+            // Sort sections by order index
+            sections = module.Sections
+                .OrderBy(s => s.OrderIndex)
+                .ToList();
+        }
+
+        isLoading = false;
+    }
+
+    // Set active section based on clicked tab
+    private void SetSection(int index)
+    {
+        currentIndex = index;
+    }
+
+    // Move to next section if possible
+    private void NextSection()
+    {
+        if (currentIndex < sections.Count - 1)
+        {
+            currentIndex++;
+        }
+    }
+
+    // Move to previous section if possible
+    private void PreviousSection()
+    {
+        if (currentIndex > 0)
+        {
+            currentIndex--;
+        }
+    }
+
+    // Navigate back to dashboard
+    private void GoBack()
+    {
+        Nav.NavigateTo("/dashboard");
+    }
+}
