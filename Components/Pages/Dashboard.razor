@@ -1,5 +1,6 @@
 @page "/dashboard"
 @using System.Security.Claims
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.EntityFrameworkCore
@@ -9,6 +10,7 @@
 
 @inject ApplicationDbContext Db
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
 
 @if (isLoading)
 {
@@ -16,6 +18,9 @@
 }
 else
 {
+    <h1>
+        Välkommen@(string.IsNullOrWhiteSpace(firstName) ? "" : $", {firstName}")!
+    </h1>
     <ModuleOverview
         TotalModules="@totalModules"
         CompletedModules="@completedModules"
@@ -27,6 +32,9 @@ else
 
 @code {
     private bool isLoading = true;
+
+    // Vairable to store name of user
+    private string? firstName;
 
     // Module variables
     private int totalModules;
@@ -47,6 +55,9 @@ else
             isLoading = false;
             return;
         }
+
+        var appUser = await UserManager.GetUserAsync(user);
+        firstName = appUser?.FirstName;
 
         string? userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
