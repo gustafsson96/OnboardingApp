@@ -1,5 +1,72 @@
 @page "/dashboard"
+@using System.Security.Claims
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.EntityFrameworkCore
+@using OnboardingApp.Data
+@using OnboardingApp.Models
 @attribute [Authorize]
 
-<h3>Dashboard</h3>
+@inject ApplicationDbContext Db
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@if (isLoading)
+{
+    <p>Laddar dashboard...</p>
+}
+else
+{
+    <section class="dashboard-stats">
+        <div class="stat-card">
+            <p>Totalt moduler</p>
+            <h2>@totalModules</h2>
+        </div>
+
+        <div class="stat-card">
+            <p>Slutförda</p>
+            <h2>@completedModules</h2>
+        </div>
+
+        <div class="stat-card">
+            <p>Återstående</p>
+            <h2>@remainingModules</h2>
+        </div>
+    </section>
+}
+
+@code {
+    private bool isLoading = true;
+
+    private int totalModules;
+    private int completedModules;
+    private int remainingModules;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated != true)
+        {
+            isLoading = false;
+            return;
+        }
+
+        string? userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            isLoading = false;
+            return;
+        }
+
+        totalModules = await Db.Modules.CountAsync();
+
+        completedModules = await Db.UserModuleProgresses
+            .CountAsync(x => x.UserId == userId && x.IsCompleted);
+
+        remainingModules = totalModules - completedModules;
+
+        isLoading = false;
+    }
+}
