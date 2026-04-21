@@ -1,0 +1,40 @@
+.module-overview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5em;
+    margin-bottom: 2em;
+}
+
+.overview-card {
+    background: white;
+    border: 1px solid #e4e7ec;
+    border-radius: 20px;
+    padding: 1.5em;
+}
+
+.overview-card p {
+    margin: 0 0 0.75em 0;
+    color: #667085;
+    font-size: 1em;
+}
+
+.overview-card h2 {
+    margin: 0;
+    font-size: 2em;
+    font-weight: 700;
+    color: #101828;
+}
+
+.completed {
+    color: #16a34a;
+}
+
+.remaining {
+    color: #2563eb;
+}
+
+@media (max-width: 900px) {
+    .module-overview {
+        grid-template-columns: 1fr;
+    }
+}

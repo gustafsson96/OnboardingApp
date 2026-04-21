@@ -16,22 +16,10 @@
 }
 else
 {
-    <section class="dashboard-stats">
-        <div class="stat-card">
-            <p>Totalt moduler</p>
-            <h2>@totalModules</h2>
-        </div>
-
-        <div class="stat-card">
-            <p>Slutförda</p>
-            <h2>@completedModules</h2>
-        </div>
-
-        <div class="stat-card">
-            <p>Återstående</p>
-            <h2>@remainingModules</h2>
-        </div>
-    </section>
+    <ModuleOverview
+        TotalModules="@totalModules"
+        CompletedModules="@completedModules"
+        RemainingModules="@remainingModules" />
 }
 
 @code {

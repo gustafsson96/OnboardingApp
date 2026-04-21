@@ -1,0 +1,22 @@
+<div class="module-overview">
+    <div class="overview-card">
+        <p>Antal moduler</p>
+        <h2>@TotalModules</h2>
+    </div>
+
+    <div class="overview-card">
+        <p>Slutförda</p>
+        <h2 class="completed">@CompletedModules</h2>
+    </div>
+
+    <div class="overview-card">
+        <p>Återstående</p>
+        <h2 class="remaining">@RemainingModules</h2>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int TotalModules { get; set; }
+    [Parameter] public int CompletedModules { get; set; }
+    [Parameter] public int RemainingModules { get; set; }
+}
