@@ -1,0 +1,84 @@
+@using OnboardingApp.Models
+@inject NavigationManager Nav
+
+<section class="modules-section">
+    <h2>Moduler</h2>
+
+    @* Show message if no modules are found *@
+    @if (Modules == null || Modules.Count == 0)
+    {
+        <p>Inga moduler hittades.</p>
+    }
+    else
+    {
+        @* Loop through all modules and render card by card *@
+        @foreach (var module in Modules)
+        {
+            var progress = GetProgress(module.ModuleId);
+
+            <div class="module-card">
+                <div class="module-card-left">
+                    <div class="module-circle @GetCircleClass(progress)"></div>
+
+                    <div class="module-text">
+                        <h3>@module.OrderIndex. @module.Title</h3>
+
+                        @if (!string.IsNullOrWhiteSpace(module.Description))
+                        {
+                            <p>@module.Description</p>
+                        }
+                    </div>
+                </div>
+
+                @* Change button text based on progress state *@
+                <button class="module-button" @onclick="() => OpenModule(module.ModuleId)">
+                    @GetButtonText(progress)
+                </button>
+            </div>
+        }
+    }
+</section>
+
+@code {
+    // List of modules passed from Dashboard component
+    [Parameter] public List<Module> Modules { get; set; } = new();
+
+    // List of user progress passed from Dashboard component
+    [Parameter] public List<UserModuleProgress> UserProgresses { get; set; } = new();
+
+    // Return user's progress for a specific module
+    private UserModuleProgress? GetProgress(int moduleId)
+    {
+        return UserProgresses.FirstOrDefault(x => x.ModuleId == moduleId);
+    }
+
+    // Control button text based on module status
+    private string GetButtonText(UserModuleProgress? progress)
+    {
+        if (progress?.IsCompleted == true)
+            return "Öppna";
+
+        if (progress is not null)
+            return "Fortsätt";
+
+        return "Starta";
+    }
+
+    // Control state of status circle
+    private string GetCircleClass(UserModuleProgress? progress)
+    {
+        if (progress?.IsCompleted == true)
+            return "completed";
+
+        if (progress is not null)
+            return "started";
+
+        return "not-started";
+    }
+
+    // Navigate to the selected module page
+    private void OpenModule(int moduleId)
+    {
+        Nav.NavigateTo($"/modul/{moduleId}");
+    }
+}

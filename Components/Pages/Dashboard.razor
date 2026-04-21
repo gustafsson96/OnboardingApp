@@ -6,6 +6,7 @@
 @using Microsoft.EntityFrameworkCore
 @using OnboardingApp.Data
 @using OnboardingApp.Models
+@using ModuleModel = OnboardingApp.Models.Module
 @attribute [Authorize]
 
 @inject ApplicationDbContext Db
@@ -28,6 +29,9 @@ else
     <ProgressBar 
         Total="@totalChecklistItems" 
         Completed="@completedChecklistItems" />
+    <ModuleCards
+        Modules="@modules"
+        UserProgresses="@moduleProgresses" />
 }
 
 @code {
@@ -36,7 +40,7 @@ else
     // Vairable to store name of user
     private string? firstName;
 
-    // Module variables
+    // Module overview variables
     private int totalModules;
     private int completedModules;
     private int remainingModules;
@@ -44,6 +48,10 @@ else
     // Checklist variables
     private int totalChecklistItems;
     private int completedChecklistItems;
+
+    // Module cards variables
+    private List<ModuleModel> modules = new();
+    private List<UserModuleProgress> moduleProgresses = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -78,6 +86,14 @@ else
 
         completedChecklistItems = await Db.UserChecklistItemStatus
         .CountAsync(x => x.UserId == userId && x.Status == ChecklistStatus.Completed);
+
+        modules = await Db.Modules
+            .OrderBy(m => m.OrderIndex)
+            .ToListAsync();
+
+        moduleProgresses = await Db.UserModuleProgresses
+            .Where(x => x.UserId == userId)
+            .ToListAsync();
 
         isLoading = false;
     }
