@@ -22,13 +22,16 @@ else
     <h1>
         Välkommen@(string.IsNullOrWhiteSpace(firstName) ? "" : $", {firstName}")!
     </h1>
+    @* Overview cards for modules *@
     <ModuleOverview
         TotalModules="@totalModules"
         CompletedModules="@completedModules"
         RemainingModules="@remainingModules" />
+    @* Checklist status overview *@
     <ProgressBar 
         Total="@totalChecklistItems" 
         Completed="@completedChecklistItems" />
+    @* List of module cards *@
     <ModuleCards
         Modules="@modules"
         UserProgresses="@moduleProgresses" />
@@ -37,36 +40,40 @@ else
 @code {
     private bool isLoading = true;
 
-    // Vairable to store name of user
+    // Store name of user
     private string? firstName;
 
-    // Module overview variables
+    // Module overview values
     private int totalModules;
     private int completedModules;
     private int remainingModules;
 
-    // Checklist variables
+    // Checklist values
     private int totalChecklistItems;
     private int completedChecklistItems;
 
-    // Module cards variables
+    // Data used for rendering module cards
     private List<ModuleModel> modules = new();
     private List<UserModuleProgress> moduleProgresses = new();
 
     protected override async Task OnInitializedAsync()
     {
+        // Get authentication state and current user
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
+        // Stop if user is not authenticated
         if (user.Identity?.IsAuthenticated != true)
         {
             isLoading = false;
             return;
         }
 
+        // Fetch full user from Identity (ApplicationUser)
         var appUser = await UserManager.GetUserAsync(user);
         firstName = appUser?.FirstName;
 
+        // Get user id
         string? userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrWhiteSpace(userId))
@@ -75,22 +82,29 @@ else
             return;
         }
 
+        // Count all modules
         totalModules = await Db.Modules.CountAsync();
 
+        // Count completed modules (user specific)
         completedModules = await Db.UserModuleProgresses
             .CountAsync(x => x.UserId == userId && x.IsCompleted);
 
+        // Calculate remaining modules
         remainingModules = totalModules - completedModules;
 
+        // Count all checklist items
         totalChecklistItems = await Db.ChecklistItems.CountAsync();
 
+        // Count checklist items marked as completed by user 
         completedChecklistItems = await Db.UserChecklistItemStatus
         .CountAsync(x => x.UserId == userId && x.Status == ChecklistStatus.Completed);
 
+        // Load all modules 
         modules = await Db.Modules
             .OrderBy(m => m.OrderIndex)
             .ToListAsync();
 
+        // Load user's progress for modules 
         moduleProgresses = await Db.UserModuleProgresses
             .Where(x => x.UserId == userId)
             .ToListAsync();
