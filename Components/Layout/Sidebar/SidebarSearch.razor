@@ -26,7 +26,9 @@
 
                         @if (!string.IsNullOrWhiteSpace(result.Snippet))
                         {
-                            <span class="search-result-snippet">@result.Snippet</span>
+                            <span class="search-result-snippet">
+                                @((MarkupString)result.Snippet)
+                            </span>
                         }
                     </button>
                 }
@@ -132,7 +134,7 @@
             .ToList();
     }
 
-    // Create short preview around the matching text
+    // Return snippet of text around search result and highlight search result
     private string GetSnippet(string text, string term)
     {
         if (string.IsNullOrWhiteSpace(text))
@@ -151,7 +153,21 @@
         int start = Math.Max(0, index - 20);
         int length = Math.Min(snippetLength, text.Length - start);
 
-        string snippet = text.Substring(start, length).Trim();
+        string snippet = text.Substring(start, length);
+
+        // Highlight match
+        int localIndex = snippet.IndexOf(term, StringComparison.OrdinalIgnoreCase);
+
+        if (localIndex >= 0)
+        {
+            string before = snippet.Substring(0, localIndex);
+            string match = snippet.Substring(localIndex, term.Length);
+            string after = snippet.Substring(localIndex + term.Length);
+
+            snippet = $"{before}<strong>{match}</strong>{after}";
+        }
+
+        snippet = snippet.Trim();
 
         if (start > 0)
             snippet = "..." + snippet;
