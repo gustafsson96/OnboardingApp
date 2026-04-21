@@ -14,12 +14,12 @@
     <div class="sidebar-header">
         <!-- Title and progress bar -->
         <h2 class="sidebar-title">Introduktion</h2>
-        <p class="sidebar-subtitle">Övergripande Framsteg</p>
+        <p class="sidebar-subtitle">Övergripande framsteg</p>
         <div class="progress-track">
             <div class="progress-bar"></div>
         </div>
 
-        <p class="progress-text">0 av 3 moduler slutförda</p>
+        <p class="progress-text">0 av @totalModules moduler slutförda</p>
     </div>
 
     <hr class="sidebar-divider" />
@@ -69,6 +69,7 @@
     private string? fullName;
     private string initials = "";
     private List<ModuleModel> modules = new();
+    private int totalModules;
 
     protected override async Task OnInitializedAsync()
     {
@@ -95,5 +96,7 @@
             .Include(m => m.Sections)
             .OrderBy(m => m.OrderIndex)
             .ToListAsync();
+
+        totalModules = modules.Count;
     }
 }
