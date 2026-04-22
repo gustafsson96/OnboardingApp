@@ -48,12 +48,30 @@
     border-color: #cbd5e1;
 }
 
+.search-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25em;
+}
+
 .search-result-title {
     display: block;
     font-size: 0.95em;
     font-weight: 700;
     color: #111827;
     margin-bottom: 0.25em;
+}
+
+.search-result-source {
+    font-size: 0.7em;
+    font-weight: 600;
+    color: #374151;
+    background-color: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
 .search-result-snippet {
