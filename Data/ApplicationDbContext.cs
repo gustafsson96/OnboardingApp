@@ -15,5 +15,9 @@ namespace OnboardingApp.Data
         public DbSet<UserModuleProgress> UserModuleProgresses { get; set; }
         public DbSet<UserChecklistItemStatus> UserChecklistItemStatus { get; set; }
         public DbSet<UserNote> UserNotes { get; set; }
+        public DbSet<QuizQuestion> QuizQuestions { get; set; }
+        public DbSet<QuizOption> QuizOptions { get; set; }
+        public DbSet<QuizAttempt> QuizAttempts { get; set; }
+        public DbSet<QuizAnswer> QuizAnswers { get; set; }
     }
 }
