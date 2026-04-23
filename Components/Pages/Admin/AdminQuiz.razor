@@ -1,0 +1,278 @@
+@page "/admin/quiz"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@using OnboardingApp.Data
+@using OnboardingApp.Models
+@attribute [Authorize(Roles = "Admin")]
+@inject ApplicationDbContext Db
+
+<h1>Hantera quiz</h1>
+<p>Här kan administratörer skapa frågor och svarsalternativ för varje modul.</p>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (modules.Count == 0)
+{
+    <p>Det finns inga moduler ännu.</p>
+}
+else
+{
+    @foreach (var module in modules)
+    {
+        var questionForm = GetQuestionForm(module.ModuleId);
+
+        <div style="border:1px solid #ccc; padding:1em; margin-bottom:1.5em;">
+            <h2>@module.Title</h2>
+            <p>@module.Description</p>
+
+            <h3>Befintliga frågor</h3>
+
+            @if (module.QuizQuestions == null || !module.QuizQuestions.Any())
+            {
+                <p>Inga frågor ännu.</p>
+            }
+            else
+            {
+                @foreach (var question in module.QuizQuestions.OrderBy(q => q.OrderIndex))
+                {
+                    var optionForm = GetOptionForm(question.QuizQuestionId);
+
+                    <div style="border:1px solid #ddd; padding:1em; margin-bottom:1em;">
+                        <p>
+                            <strong>Fråga @question.OrderIndex:</strong>
+                            @question.QuestionText
+                        </p>
+
+                        <button @onclick="() => DeleteQuestion(question.QuizQuestionId)">
+                            Ta bort fråga
+                        </button>
+
+                        <h4>Svarsalternativ</h4>
+
+                        @if (question.Options == null || !question.Options.Any())
+                        {
+                            <p>Inga svarsalternativ ännu.</p>
+                        }
+                        else
+                        {
+                            <ul>
+                                @foreach (var option in question.Options)
+                                {
+                                    <li>
+                                        @option.OptionText
+                                        @if (option.IsCorrect)
+                                        {
+                                            <strong>(Rätt svar)</strong>
+                                        }
+
+                                        <button @onclick="() => DeleteOption(option.QuizOptionId)">
+                                            Ta bort
+                                        </button>
+                                    </li>
+                                }
+                            </ul>
+                        }
+
+                        <h4>Lägg till svarsalternativ</h4>
+
+                        <div>
+                            <label>Svarstext</label><br />
+                            <input @bind="optionForm.OptionText" />
+                        </div>
+
+                        <div style="margin-top:0.5em;">
+                            <label>
+                                <input type="checkbox" @bind="optionForm.IsCorrect" />
+                                Rätt svar
+                            </label>
+                        </div>
+
+                        <div style="margin-top:0.5em;">
+                            <button @onclick="() => CreateOption(question.QuizQuestionId)">
+                                Lägg till svarsalternativ
+                            </button>
+                        </div>
+                    </div>
+                }
+            }
+
+            <h3>Skapa ny fråga</h3>
+
+            <div>
+                <label>Frågetext</label><br />
+                <textarea @bind="questionForm.QuestionText"></textarea>
+            </div>
+
+            <div style="margin-top:0.5em;">
+                <button @onclick="() => CreateQuestion(module.ModuleId)">
+                    Lägg till fråga
+                </button>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private List<Module> modules = new();
+    private string? message;
+
+    private class NewQuestionModel
+    {
+        public string QuestionText { get; set; } = string.Empty;
+    }
+
+    private class NewOptionModel
+    {
+        public string OptionText { get; set; } = string.Empty;
+        public bool IsCorrect { get; set; }
+    }
+
+    private Dictionary<int, NewQuestionModel> newQuestions = new();
+    private Dictionary<int, NewOptionModel> newOptions = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadModules();
+    }
+
+    private async Task LoadModules()
+    {
+        modules = await Db.Modules
+            .Include(m => m.QuizQuestions.OrderBy(q => q.OrderIndex))
+                .ThenInclude(q => q.Options)
+            .OrderBy(m => m.OrderIndex)
+            .ToListAsync();
+    }
+
+    private NewQuestionModel GetQuestionForm(int moduleId)
+    {
+        if (!newQuestions.ContainsKey(moduleId))
+        {
+            newQuestions[moduleId] = new NewQuestionModel();
+        }
+
+        return newQuestions[moduleId];
+    }
+
+    private NewOptionModel GetOptionForm(int questionId)
+    {
+        if (!newOptions.ContainsKey(questionId))
+        {
+            newOptions[questionId] = new NewOptionModel();
+        }
+
+        return newOptions[questionId];
+    }
+
+    private async Task CreateQuestion(int moduleId)
+    {
+        var form = GetQuestionForm(moduleId);
+
+        if (string.IsNullOrWhiteSpace(form.QuestionText))
+        {
+            message = "Frågetext måste anges.";
+            return;
+        }
+
+        int maxOrderIndex = await Db.QuizQuestions
+            .Where(q => q.ModuleId == moduleId)
+            .MaxAsync(q => (int?)q.OrderIndex) ?? 0;
+
+        var question = new QuizQuestion
+        {
+            ModuleId = moduleId,
+            QuestionText = form.QuestionText,
+            OrderIndex = maxOrderIndex + 1
+        };
+
+        Db.QuizQuestions.Add(question);
+        await Db.SaveChangesAsync();
+
+        newQuestions[moduleId] = new NewQuestionModel();
+        message = "Frågan skapades.";
+
+        await LoadModules();
+    }
+
+    private async Task DeleteQuestion(int questionId)
+    {
+        var question = await Db.QuizQuestions
+            .Include(q => q.Options)
+            .FirstOrDefaultAsync(q => q.QuizQuestionId == questionId);
+
+        if (question is null)
+        {
+            message = "Frågan kunde inte hittas.";
+            return;
+        }
+
+        if (question.Options.Any())
+        {
+            Db.QuizOptions.RemoveRange(question.Options);
+        }
+
+        Db.QuizQuestions.Remove(question);
+        await Db.SaveChangesAsync();
+
+        message = "Frågan togs bort.";
+        await LoadModules();
+    }
+
+    private async Task CreateOption(int questionId)
+    {
+        var form = GetOptionForm(questionId);
+
+        if (string.IsNullOrWhiteSpace(form.OptionText))
+        {
+            message = "Svarstext måste anges.";
+            return;
+        }
+
+        if (form.IsCorrect)
+        {
+            var existingCorrectOptions = await Db.QuizOptions
+                .Where(o => o.QuizQuestionId == questionId && o.IsCorrect)
+                .ToListAsync();
+
+            foreach (var option in existingCorrectOptions)
+            {
+                option.IsCorrect = false;
+            }
+        }
+
+        var newOption = new QuizOption
+        {
+            QuizQuestionId = questionId,
+            OptionText = form.OptionText,
+            IsCorrect = form.IsCorrect
+        };
+
+        Db.QuizOptions.Add(newOption);
+        await Db.SaveChangesAsync();
+
+        newOptions[questionId] = new NewOptionModel();
+        message = "Svarsalternativet skapades.";
+
+        await LoadModules();
+    }
+
+    private async Task DeleteOption(int optionId)
+    {
+        var option = await Db.QuizOptions.FindAsync(optionId);
+
+        if (option is null)
+        {
+            message = "Svarsalternativet kunde inte hittas.";
+            return;
+        }
+
+        Db.QuizOptions.Remove(option);
+        await Db.SaveChangesAsync();
+
+        message = "Svarsalternativet togs bort.";
+        await LoadModules();
+    }
+}
