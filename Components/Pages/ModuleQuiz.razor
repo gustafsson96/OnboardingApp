@@ -1,1 +1,119 @@
 @page "/modul/{ModuleId:int}/quiz"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@using OnboardingApp.Data
+@using OnboardingApp.Models
+@using ModuleModel = OnboardingApp.Models.Module
+@attribute [Authorize]
+@inject ApplicationDbContext Db
+@inject NavigationManager Nav
+
+@if (isLoading)
+{
+    <p>Laddar quiz...</p>
+}
+else if (module is null)
+{
+    <p>Modulen kunde inte hittas.</p>
+}
+else
+{
+    <div class="quiz-page">
+        <button class="back-button" @onclick="GoBack">
+            ← Tillbaka till modul
+        </button>
+
+        <header class="quiz-header">
+            <p class="quiz-kicker">Modulquiz</p>
+            <h1>@module.Title</h1>
+
+            @if (!string.IsNullOrWhiteSpace(module.Description))
+            {
+                <p class="quiz-description">@module.Description</p>
+            }
+        </header>
+
+        <section class="quiz-card">
+            <div class="quiz-card-top">
+                <div>
+                    <h2>Avslutande quiz</h2>
+                    <p>
+                        Besvara frågorna nedan för att slutföra modulen.
+                    </p>
+                </div>
+
+                <span class="quiz-status-badge">
+                    @questions.Count frågor
+                </span>
+            </div>
+
+            @if (questions.Count == 0)
+            {
+                <div class="quiz-empty-state">
+                    <h3>Inga quizfrågor ännu</h3>
+                    <p>
+                        Det finns inga frågor kopplade till den här modulen än.
+                    </p>
+                </div>
+            }
+            else
+            {
+                @foreach (var question in questions)
+                {
+                    <section class="question-card">
+                        <div class="question-top">
+                            <span class="question-number">@question.OrderIndex</span>
+                            <h3>@question.QuestionText</h3>
+                        </div>
+
+                        <div class="options-list">
+                            @foreach (var option in question.Options.OrderBy(o => o.QuizOptionId))
+                            {
+                                <label class="option-row">
+                                    <input type="radio" name="question-@question.QuizQuestionId" />
+                                    <span>@option.OptionText</span>
+                                </label>
+                            }
+                        </div>
+                    </section>
+                }
+
+                <div class="quiz-actions">
+                    <button class="submit-button" disabled>
+                        Skicka
+                    </button>
+                </div>
+            }
+        </section>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int ModuleId { get; set; }
+
+    private ModuleModel? module;
+    private List<QuizQuestion> questions = new();
+    private bool isLoading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+
+        module = await Db.Modules
+            .FirstOrDefaultAsync(m => m.ModuleId == ModuleId);
+
+        questions = await Db.QuizQuestions
+            .Where(q => q.ModuleId == ModuleId)
+            .Include(q => q.Options)
+            .OrderBy(q => q.OrderIndex)
+            .ToListAsync();
+
+        isLoading = false;
+    }
+
+    private void GoBack()
+    {
+        Nav.NavigateTo($"/modul/{ModuleId}");
+    }
+}
