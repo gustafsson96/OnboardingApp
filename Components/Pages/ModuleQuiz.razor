@@ -216,6 +216,34 @@ else
             }
         }
 
+        // If quiz is passed, update module progress
+        if (attempt.Passed)
+        {
+            var progress = await Db.UserModuleProgresses
+                .FirstOrDefaultAsync(p => p.ModuleId == ModuleId && p.UserId == userId);
+
+            if (progress is not null)
+            {
+                progress.IsCompleted = true;
+                progress.ProgressPercent = 100;
+                progress.CompletedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                // If no progress exists yet, create one
+                progress = new UserModuleProgress
+                {
+                    ModuleId = ModuleId,
+                    UserId = userId,
+                    IsCompleted = true,
+                    ProgressPercent = 100,
+                    CompletedAt = DateTime.UtcNow
+                };
+
+                Db.UserModuleProgresses.Add(progress);
+            }
+        }
+
         await Db.SaveChangesAsync();
     }
 
