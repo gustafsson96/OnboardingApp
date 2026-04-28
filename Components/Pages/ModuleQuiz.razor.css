@@ -192,3 +192,28 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+.show-answers-button {
+    margin-top: 1em;
+    border: none;
+    border-radius: 10px;
+    padding: 0.7em 1.1em;
+    background: #f3f4f6;
+    color: #111827;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.show-answers-button:hover {
+    background: #e5e7eb;
+}
+
+.option-row.correct {
+    border-color: #22c55e;
+    background: #f0fdf4;
+}
+
+.option-row.wrong {
+    border-color: #ef4444;
+    background: #fef2f2;
+}

@@ -71,7 +71,7 @@ else
                         <div class="options-list">
                             @foreach (var option in question.Options.OrderBy(o => o.QuizOptionId))
                             {
-                                <label class="option-row">
+                                <label class="option-row @GetOptionCssClass(question, option)">
                                     <input type="radio"
                                            name="question-@question.QuizQuestionId"
                                            checked="@IsSelected(question.QuizQuestionId, option.QuizOptionId)"
@@ -97,6 +97,9 @@ else
                     <div class="quiz-result">
                         <h3>Resultat</h3>
                         <p>Du fick @score av @questions.Count rätt.</p>
+                        <button class="show-answers-button" @onclick="ToggleShowAnswers">
+                            @(showAnswers ? "Dölj svar" : "Visa svar")
+                        </button>
                     </div>
                 }
             }
@@ -111,6 +114,7 @@ else
     private ModuleModel? module;
     private List<QuizQuestion> questions = new();
     private bool isLoading = true;
+    private bool showAnswers = false;
 
     // Stores the selected answer for each question
     private Dictionary<int, int> selectedAnswers = new();
@@ -139,6 +143,7 @@ else
         selectedAnswers.Clear();
         hasSubmitted = false;
         score = 0;
+        showAnswers = false;
 
         isLoading = false;
     }
@@ -211,7 +216,30 @@ else
             }
         }
 
-    await Db.SaveChangesAsync();
+        await Db.SaveChangesAsync();
+    }
+
+    // Toggle button to show answers after a finished round
+    private void ToggleShowAnswers()
+    {
+        showAnswers = !showAnswers;
+    }
+
+    // Select css class based on if answer is correct or not
+    private string GetOptionCssClass(QuizQuestion question, QuizOption option)
+    {
+        if (!hasSubmitted || !showAnswers)
+            return string.Empty;
+
+        bool isSelected = IsSelected(question.QuizQuestionId, option.QuizOptionId);
+
+        if (option.IsCorrect)
+            return "correct";
+
+        if (isSelected && !option.IsCorrect)
+            return "wrong";
+
+        return string.Empty;
     }
 
     private void GoBack()
