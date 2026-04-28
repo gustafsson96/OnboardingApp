@@ -78,6 +78,13 @@
     opacity: 0.92;
 }
 
+.completed-label {
+    margin-left: 0.6em;
+    font-size: 0.7em;
+    font-weight: 600;
+    color: #6b7280;
+}
+
 @media (max-width: 900px) {
     .module-card {
         flex-direction: column;

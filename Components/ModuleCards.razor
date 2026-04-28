@@ -21,8 +21,12 @@
                     <div class="module-circle @GetCircleClass(progress)"></div>
 
                     <div class="module-text">
-                        <h3>@module.OrderIndex. @module.Title</h3>
-
+                        <h3>@module.OrderIndex. @module.Title
+                            @if (progress?.IsCompleted == true)
+                            {
+                                <span class="completed-label">(Avklarad)</span>
+                            }
+                        </h3>
                         @if (!string.IsNullOrWhiteSpace(module.Description))
                         {
                             <p>@module.Description</p>
