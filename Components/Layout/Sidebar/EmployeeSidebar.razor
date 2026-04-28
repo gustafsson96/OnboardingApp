@@ -16,10 +16,10 @@
         <h2 class="sidebar-title">Introduktion</h2>
         <p class="sidebar-subtitle">Övergripande framsteg</p>
         <div class="progress-track">
-            <div class="progress-bar"></div>
+            <div class="progress-bar" style="width: @moduleProgressPercent%"></div>
         </div>
 
-        <p class="progress-text">0 av @totalModules moduler slutförda</p>
+        <p class="progress-text">@completedModules av @totalModules moduler slutförda</p>
     </div>
 
     <hr class="sidebar-divider" />
@@ -73,6 +73,8 @@
     private string initials = "";
     private List<ModuleModel> modules = new();
     private int totalModules;
+    private int completedModules;
+    private int moduleProgressPercent;
     private int totalChecklistItems;
     private int completedChecklistItems;
 
@@ -105,6 +107,13 @@
             .ToListAsync();
 
         totalModules = modules.Count;
+
+        completedModules = await Db.UserModuleProgresses
+            .CountAsync(x => x.UserId == userId && x.IsCompleted);
+
+        moduleProgressPercent = totalModules == 0
+            ? 0
+            : (int)Math.Round((double)completedModules / totalModules * 100);
 
         totalChecklistItems = await Db.ChecklistItems.CountAsync();
 
