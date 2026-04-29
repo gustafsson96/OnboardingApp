@@ -208,6 +208,24 @@
     background: #e5e7eb;
 }
 
+.retry-button {
+    margin-top: 0.75em;
+    margin-left: 0.75em;
+    border: none;
+    border-radius: 10px;
+    padding: 0.7em 1.1em;
+    background: #e5e7eb;
+    color: #111827;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.retry-button:hover {
+    background: #d1d5db;
+}
+
 .option-row.correct {
     border-color: #22c55e;
     background: #f0fdf4;

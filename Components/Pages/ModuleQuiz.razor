@@ -100,6 +100,10 @@ else
                         <button class="show-answers-button" @onclick="ToggleShowAnswers">
                             @(showAnswers ? "Dölj svar" : "Visa svar")
                         </button>
+
+                        <button class="retry-button" @onclick="RestartQuiz">
+                            Gör quizet igen
+                        </button>
                     </div>
                 }
             }
@@ -268,6 +272,15 @@ else
             return "wrong";
 
         return string.Empty;
+    }
+
+    // Resets the quiz so the user can make a new attempt
+    private void RestartQuiz()
+    {
+        selectedAnswers.Clear();
+        hasSubmitted = false;
+        score = 0;
+        showAnswers = false;
     }
 
     private void GoBack()
