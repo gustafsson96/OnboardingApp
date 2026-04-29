@@ -95,7 +95,12 @@ else
                 @if (hasSubmitted)
                 {
                     <div class="quiz-result">
-                    @if (score == questions.Count)
+                    @if (alreadyCompleted)
+                    {
+                        <h3>Repetition slutförd :-)</h3>
+                        <p>Du fick @score av @questions.Count rätt.</p>
+                    }
+                    else if (score == questions.Count)
                     {
                         <h3>Modulen är avklarad!</h3>
                         <p>Du fick @score av @questions.Count rätt. Full pott.</p>
@@ -132,6 +137,7 @@ else
     private List<QuizQuestion> questions = new();
     private bool isLoading = true;
     private bool showAnswers = false;
+    private bool alreadyCompleted = false;
 
     // Stores the selected answer for each question
     private Dictionary<int, int> selectedAnswers = new();
@@ -156,6 +162,22 @@ else
             .Include(q => q.Options)
             .OrderBy(q => q.OrderIndex)
             .ToListAsync();
+
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                if (userId != null)
+                {
+                    alreadyCompleted = await Db.UserModuleProgresses
+                        .AnyAsync(p => p.ModuleId == ModuleId &&
+                                    p.UserId == userId &&
+                                    p.IsCompleted);
+                }
+            }
 
         selectedAnswers.Clear();
         hasSubmitted = false;
