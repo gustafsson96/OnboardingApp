@@ -70,8 +70,8 @@
     margin-bottom: 2em;
 }
 
-.nav-link,
-.module-link {
+::deep .nav-link,
+::deep .module-link {
     display: flex;
     align-items: center;
     gap: 0.9em;
@@ -84,12 +84,13 @@
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.nav-link:hover,
-.module-link:hover {
+::deep .nav-link:hover,
+::deep .module-link:hover {
     background-color: #e5e7eb;
 }
 
-.nav-link.active {
+::deep .nav-link.active,
+::deep .module-link.active {
     background-color: #e8eefc;
     color: #2563eb;
     font-weight: 600;

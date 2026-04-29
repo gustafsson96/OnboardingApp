@@ -6,6 +6,7 @@
 @using OnboardingApp.Models
 @using ModuleModel = OnboardingApp.Models.Module
 
+@inject NavigationManager Nav
 @inject AuthenticationStateProvider AuthStateProvider
 @inject UserManager<ApplicationUser> UserManager
 @inject ApplicationDbContext Db
@@ -28,15 +29,17 @@
 
     <!-- Checklist section -->
     <nav class="sidebar-nav">
-        <a href="/dashboard" class="nav-link active">Översikt</a>
-        <a href="/checklista" class="nav-link">
+        <NavLink href="/dashboard" class="nav-link" ActiveClass="active">
+            Översikt
+        </NavLink>
+        <NavLink href="/checklista" class="nav-link" ActiveClass="active">
             <div class="nav-link-text">
                 <span>Checklista</span>
                 <span class="nav-link-subtext">
                     @completedChecklistItems / @totalChecklistItems
                 </span>
             </div>
-        </a>
+        </NavLink>
     </nav>
 
     <!-- Link to modules -->
@@ -44,9 +47,11 @@
     <p class="section-title">Moduler</p>
         @foreach (var module in modules)
             {
-                <a href="/modul/@module.ModuleId" class="module-link">
-                    @module.Title
-                </a>
+            <NavLink href="@($"/modul/{module.ModuleId}")"
+                    class="module-link"
+                    ActiveClass="active">
+                @module.Title
+            </NavLink>
             }
     </div>
 
