@@ -1,6 +1,8 @@
 .admin-sidebar {
     width: 310px;
-    min-height: 100vh;
+    height: 100vh;
+    position: sticky;
+    top: 0;
     background: linear-gradient(180deg, #0f1c2f 0%, #11243a 100%);
     color: #ffffff;
     display: flex;
