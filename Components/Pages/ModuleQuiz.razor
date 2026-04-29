@@ -38,15 +38,24 @@ else
         <section class="quiz-card">
             <div class="quiz-card-top">
                 <div>
-                    <h2>Avslutande quiz</h2>
+                    <h2>Quiz</h2>
                     <p>
-                        Besvara frågorna nedan för att slutföra modulen.
+                        Besvara frågorna nedan. Du behöver alla rätt för att avsluta modulen. 
                     </p>
                 </div>
 
-                <span class="quiz-status-badge">
-                    @questions.Count frågor
-                </span>
+                <div class="quiz-header-badges">
+                    @if (alreadyCompleted)
+                    {
+                        <div class="completed-badge">
+                            <span>Modulen avklarad</span>
+                        </div>
+                    }
+
+                    <span class="quiz-status-badge">
+                        @questions.Count frågor
+                    </span>
+                </div>
             </div>
 
             @if (questions.Count == 0)
