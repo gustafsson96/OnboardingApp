@@ -125,8 +125,13 @@
     margin-bottom: 2em;
 }
 
-.sidebar-user {
+.sidebar-profile {
     margin-top: 2em;
+    position: relative;
+}
+
+.sidebar-user {
+    width: 100%;
     background-color: #ffffff;
     border: 1px solid #d1d5db;
     border-radius: 20px;
@@ -134,6 +139,12 @@
     display: flex;
     align-items: center;
     gap: 0.9em;
+    cursor: pointer;
+    text-align: left;
+}
+
+.sidebar-user:hover {
+    background-color: #f9fafb;
 }
 
 .user-avatar {
@@ -168,4 +179,37 @@
     font-size: 0.95em;
     color: #6b7280;
     font-weight: 500;
+}
+
+.profile-menu {
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 18px;
+    margin-bottom: 0.75em;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+::deep .profile-menu-item,
+.profile-menu-item {
+    width: 100%;
+    display: block;
+    padding: 1em 1.1em;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 0.98em;
+    font-weight: 500;
+    color: #111827;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+::deep .profile-menu-item:hover,
+.profile-menu-item:hover {
+    background-color: #f3f4f6;
+}
+
+.logout-button {
+    color: #dc2626;
 }

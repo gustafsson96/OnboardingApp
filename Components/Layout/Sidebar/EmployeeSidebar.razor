@@ -6,7 +6,6 @@
 @using OnboardingApp.Models
 @using ModuleModel = OnboardingApp.Models.Module
 
-@inject NavigationManager Nav
 @inject AuthenticationStateProvider AuthStateProvider
 @inject UserManager<ApplicationUser> UserManager
 @inject ApplicationDbContext Db
@@ -61,13 +60,30 @@
     </div>
 
     <!-- Profile section -->
-    <div class="sidebar-user">
+<div class="sidebar-profile">
+    @if (showProfileMenu)
+    {
+        <div class="profile-menu">
+            <NavLink href="/profil" class="profile-menu-item">
+                <span>Profil & inställningar</span>
+            </NavLink>
+
+            <form method="post" action="/Identity/Account/Logout">
+                <button type="submit" class="profile-menu-item logout-button">
+                    Logga ut
+                </button>
+            </form>
+        </div>
+    }
+
+    <button type="button" class="sidebar-user" @onclick="ToggleProfileMenu">
         <div class="user-avatar">@initials</div>
         <div class="user-info">
             <p class="user-name">@(fullName ?? "Användare")</p>
             <p class="user-action">Visa alternativ</p>
         </div>
-    </div>
+    </button>
+</div>
 </div>
 
 @code {
@@ -80,6 +96,7 @@
     private int moduleProgressPercent;
     private int totalChecklistItems;
     private int completedChecklistItems;
+    private bool showProfileMenu = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -121,5 +138,10 @@
         totalChecklistItems = await Db.ChecklistItems.CountAsync();
 
         completedChecklistItems = await Db.UserChecklistItemStatus.CountAsync(x => x.UserId == userId && x.Status == ChecklistStatus.Completed);
+    }
+
+    private void ToggleProfileMenu()
+    {
+        showProfileMenu = !showProfileMenu;
     }
 }
