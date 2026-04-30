@@ -1,0 +1,39 @@
+.module-tab-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    background: #e5e7eb;
+    padding: 6px;
+    border-radius: 999px;
+    margin: 32px 0;
+}
+
+.module-tab {
+    border: none;
+    background: transparent;
+    padding: 3px 20px;
+    border-radius: 999px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.module-tab.active {
+    background: white;
+}
+
+.module-tab-check {
+    background: #d1fae5;
+    color: #047857;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}

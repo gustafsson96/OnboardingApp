@@ -1,0 +1,36 @@
+@inject NavigationManager Nav
+
+<div class="module-tab-nav">
+    <button class="module-tab @(ActiveTab == "content" ? "active" : "")"
+            @onclick="GoToContent">
+        <span><i class="fa-solid fa-book"></i></span>
+        <span>Innehåll</span>
+    </button>
+
+    <button class="module-tab @(ActiveTab == "quiz" ? "active" : "")"
+            @onclick="GoToQuiz">
+        <span><i class="fa-solid fa-circle-question"></i></span>
+        <span>Quiz</span>
+
+        @if (QuizCompleted)
+        {
+            <span class="module-tab-check"><i class="fa-solid fa-check"></i></span>
+        }
+    </button>
+</div>
+
+@code {
+    [Parameter] public int ModuleId { get; set; }
+    [Parameter] public string ActiveTab { get; set; } = "content";
+    [Parameter] public bool QuizCompleted { get; set; }
+
+    private void GoToContent()
+    {
+        Nav.NavigateTo($"/modul/{ModuleId}");
+    }
+
+    private void GoToQuiz()
+    {
+        Nav.NavigateTo($"/modul/{ModuleId}/quiz");
+    }
+}

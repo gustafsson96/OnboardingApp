@@ -1,5 +1,6 @@
 @page "/modul/{ModuleId:int}"
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.EntityFrameworkCore
 @using OnboardingApp.Data
 @using OnboardingApp.Models
@@ -7,6 +8,7 @@
 @attribute [Authorize]
 @inject ApplicationDbContext Db
 @inject NavigationManager Nav
+@inject AuthenticationStateProvider AuthStateProvider
 
 @if (isLoading)
 {
@@ -20,16 +22,19 @@ else
 {
     <div class="module-page">
         <button class="back-button" @onclick="GoBack">
-            ← Tillbaka
+            ← Översikt
         </button>
 
         <header class="module-header">
+            <p class="module-kicker">Modul</p>
             <h1>@module.Title</h1>
             @if (!string.IsNullOrWhiteSpace(module.Description))
             {
-                <p>@module.Description</p>
+                <p class="module-description">@module.Description</p>
             }
         </header>
+
+        <ModuleNavigationBar ModuleId="ModuleId" ActiveTab="content" QuizCompleted="moduleCompleted" />
 
         <section class="module-sections-overview">
             <h2>Sektioner</h2>
@@ -96,6 +101,9 @@ else
     // Loading state while fetching data
     private bool isLoading = true;
 
+    // State of a  module (completed/not completed)
+    private bool moduleCompleted = false;
+
     // Run when route parameter changes
     protected override async Task OnParametersSetAsync()
     {
@@ -120,6 +128,24 @@ else
             sections = module.Sections
                 .OrderBy(s => s.OrderIndex)
                 .ToList();
+        }
+
+            moduleCompleted = false;
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId is not null)
+            {
+                moduleCompleted = await Db.UserModuleProgresses
+                    .AnyAsync(p => p.ModuleId == ModuleId &&
+                                p.UserId == userId &&
+                                p.IsCompleted);
+            }
         }
 
         isLoading = false;
