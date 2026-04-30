@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnboardingApp.Components;
@@ -163,6 +164,16 @@ app.UseAntiforgery();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Logout route
+app.MapPost(
+    "/logout",
+    async (HttpContext context) =>
+    {
+        await context.SignOutAsync(IdentityConstants.ApplicationScheme);
+        return Results.Redirect("/Login");
+    }
+);
 
 app.MapRazorPages();
 app.MapStaticAssets();
