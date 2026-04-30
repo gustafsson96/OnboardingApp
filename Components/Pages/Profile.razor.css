@@ -1,0 +1,88 @@
+.profile-page {
+    width: 100%;
+    min-height: 100vh;
+    padding: 2.5em 3em;
+    background-color: #f9fafb;
+    box-sizing: border-box;
+}
+
+.back-button {
+    border: none;
+    background: transparent;
+    color: #4b5563;
+    font-size: 0.95em;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 1.5em;
+    padding: 0;
+}
+
+.back-button:hover {
+    color: #111827;
+}
+
+.profile-page h1 {
+    margin: 0 0 0.75em 0;
+    font-size: 2em;
+    font-weight: 700;
+    color: #111827;
+}
+
+.profile-card {
+    max-width: 900px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 22px;
+    padding: 1.75em 2em;
+    margin-bottom: 1.5em;
+}
+
+.profile-card h2 {
+    margin-bottom: 0.5em;
+    font-size: 1.4em;
+}
+
+.card-subtitle {
+    margin: 0.25em 0 1.5em 0;
+    color: #6b7280;
+    font-size: 0.95em;
+}
+
+.info-card {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    background: #f3f4f6;
+    border-radius: 18px;
+    padding: 1.2em 1.3em;
+    margin-bottom: 1em;
+}
+
+.info-card:last-child {
+    margin-bottom: 0;
+}
+
+.info-icon {
+    font-size: 1.2em;
+    width: 28px;
+    color: #6b7280;
+}
+
+.info-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    margin: 0;
+    font-size: 0.9em;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.info-value {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #111827;
+}

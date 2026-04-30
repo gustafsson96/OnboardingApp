@@ -9,23 +9,47 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 
-<h1>Profile & Settings</h1>
+<div class="profile-page">
 
-@if (isLoading)
-{
-    <p>Laddar...</p>
-}
-else if (appUser is not null)
-{
-    <div>
-        <p><strong>Full Name:</strong> @fullName</p>
-        <p><strong>Email:</strong> @appUser.Email</p>
-        <p><strong>Role:</strong> @role</p>
-        <p><strong>Start Date:</strong> @startDate</p>
-    </div>
-}
+    <button class="back-button" @onclick="GoBack">← Översikt</button>
 
-<button @onclick="GoBack">← Back</button>
+    <h1>Profil & Inställningar</h1>
+
+    @if (isLoading)
+    {
+        <p>Laddar...</p>
+    }
+    else if (appUser is not null)
+    {
+        <div class="profile-card">
+        <h2>Personlig information</h2>
+
+        <div class="info-card">
+            <i class="fa-regular fa-user info-icon"></i>
+            <div class="info-text">
+                <p class="info-label">Namn</p>
+                <p class="info-value">@fullName</p>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <i class="fa-regular fa-envelope info-icon"></i>
+            <div class="info-text">
+                <p class="info-label">E-post</p>
+                <p class="info-value">@appUser.Email</p>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <i class="fa-regular fa-calendar info-icon"></i>
+            <div class="info-text">
+                <p class="info-label">Startdatum</p>
+                <p class="info-value">@startDate</p>
+            </div>
+        </div>
+        </div>
+    }
+</div>
 
 @code {
     private ApplicationUser? appUser;
