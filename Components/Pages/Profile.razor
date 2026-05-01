@@ -74,7 +74,7 @@
         <div class="form-group">
             <label>Nytt lösenord</label>
             <input type="password" placeholder="Nytt lösenord" @bind="newPassword" />
-            <small>Lösenordet måste vara minst 8 tecken</small>
+            <small>Lösenordet måste vara minst 8 tecken och innehålla en stor bokstav, en siffra och ett specialtecken.</small>
         </div>
 
         <div class="form-group">
@@ -167,8 +167,31 @@
         }
         else
         {
-            errorMessage = string.Join(" ", result.Errors.Select(e => e.Description));
+            errorMessage = string.Join(" ", result.Errors.Select(e => TranslateIdentityError(e.Description)));
         }
+    }
+
+    private string TranslateIdentityError(string message)
+    {
+        if (message.Contains("Incorrect password"))
+            return "Lösenordet är felaktigt.";
+
+        if (message.Contains("Passwords must be at least"))
+            return "Lösenordet är för kort.";
+
+        if (message.Contains("Passwords must have at least one uppercase"))
+            return "Lösenordet måste innehålla minst en stor bokstav.";
+
+        if (message.Contains("Passwords must have at least one lowercase"))
+            return "Lösenordet måste innehålla minst en liten bokstav.";
+
+        if (message.Contains("Passwords must have at least one digit"))
+            return "Lösenordet måste innehålla minst en siffra.";
+
+        if (message.Contains("Passwords must have at least one non alphanumeric"))
+            return "Lösenordet måste innehålla minst ett specialtecken.";
+
+        return message;
     }
 
     private void GoBack()
